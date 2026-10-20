@@ -15,5 +15,5 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function MenuPage({ params }: { params: Promise<{ slug: string }> }) {
   const cafe = getCafeBySlug((await params).slug);
   if (!cafe) notFound();
-  return <PublicShell><AnalyticsBeacon eventType="menu_view" cafeId={cafe.id} /><header className="page-hero container"><Link href={`/cafes/${cafe.slug}`} className="eyebrow"><ArrowRight size={14} style={{ display: "inline" }} /> بازگشت به صفحه کافه</Link><h1>منوی {cafe.name}</h1><p><Search size={16} style={{ display: "inline" }} /> قیمت‌ها و موجودی همین حالا توسط کافه به‌روز می‌شوند.</p></header><div className="container" style={{ paddingBottom: 70 }}><MenuBrowser categories={cafe.menu} /></div></PublicShell>;
+  return <PublicShell><AnalyticsBeacon eventType="menu_view" cafeId={cafe.id} /><header className="page-hero container"><Link href={`/cafes/${cafe.slug}`} className="eyebrow"><ArrowRight size={14} style={{ display: "inline" }} /> بازگشت به صفحه کافه</Link><h1>منوی {cafe.name}</h1><p><Search size={16} style={{ display: "inline" }} /> قیمت‌ها و موجودی همین حالا توسط کافه به‌روز می‌شوند.</p></header><div className="container" style={{ paddingBottom: 70 }}><MenuBrowser categories={cafe.menu} cafeId={cafe.id} /></div></PublicShell>;
 }
