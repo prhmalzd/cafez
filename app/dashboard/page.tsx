@@ -1,0 +1,10 @@
+import { BadgePercent, Eye, MapPin, MenuSquare, ScanLine } from "lucide-react";
+import { AnalyticsChart } from "@/components/analytics-chart";
+import { DashboardShell } from "@/components/dashboard-shell";
+import { analytics } from "@/lib/data";
+import { toPersianDigits } from "@/lib/utils";
+
+export default function DashboardPage() {
+  const stats = [["بازدید صفحه", analytics.profileViews, Eye], ["مشاهده منو", analytics.menuViews, MenuSquare], ["کلیک مسیریابی", analytics.directionClicks, MapPin], ["دریافت پیشنهاد", analytics.offerClaims, BadgePercent], ["استفاده موفق", analytics.redemptions, ScanLine]] as const;
+  return <DashboardShell><div className="dash-top"><div><h1>سلام، رُستری هفت 👋</h1><span className="muted">عملکرد کافه در ۳۰ روز اخیر</span></div><span className="demo-pill">نسخه نمایشی</span></div><div className="stat-grid">{stats.map(([label, value, Icon]) => <div className="stat-card" key={label}><span><Icon size={14} style={{ display: "inline" }} /> {label}</span><strong>{toPersianDigits(value)}</strong></div>)}</div><div className="dash-grid"><section className="panel"><h2>روند بازدید</h2><AnalyticsChart /></section><section className="panel"><h2>فعالیت‌های تازه</h2><div className="activity-list"><div className="activity"><span className="activity-icon"><ScanLine size={17} /></span><div><strong>کد پیشنهاد استفاده شد</strong><div className="muted">۸ دقیقه پیش</div></div></div><div className="activity"><span className="activity-icon"><MapPin size={17} /></span><div><strong>۱۶ کلیک مسیریابی جدید</strong><div className="muted">امروز</div></div></div><div className="activity"><span className="activity-icon"><BadgePercent size={17} /></span><div><strong>نرخ استفاده به ۷۰٪ رسید</strong><div className="muted">این هفته</div></div></div></div></section></div><section className="panel" style={{ marginTop: 18 }}><h2>قیف جذب مشتری</h2><div className="grid-3"><div><span className="muted">بازدید ← منو</span><h3>۷۰٪</h3></div><div><span className="muted">پیشنهاد ← دریافت کد</span><h3>۳۸٪</h3></div><div><span className="muted">کد ← استفاده حضوری</span><h3>۷۰٪</h3></div></div></section></DashboardShell>;
+}

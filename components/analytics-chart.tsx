@@ -1,0 +1,2 @@
+const values = [34, 52, 46, 66, 58, 82, 74, 49, 68, 88, 79, 94, 71, 86];
+export function AnalyticsChart() { return <><div className="chart" aria-label="نمودار بازدید چهارده روز اخیر">{values.map((value, index) => <div className="chart-bar" key={index} style={{ height: `${value}%` }} title={`${value} بازدید`} />)}</div><div className="chart-labels"><span>۱۴ روز پیش</span><span>امروز</span></div></>; }
