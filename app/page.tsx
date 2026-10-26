@@ -4,10 +4,13 @@ import { CafeCard } from "@/components/cafe-card";
 import { HomeSearch } from "@/components/home-search";
 import { OfferCard } from "@/components/offer-card";
 import { PublicShell } from "@/components/public-shell";
+import { SponsoredBanner } from "@/components/sponsored-banner";
 import { getApprovedCafes, offers } from "@/lib/data";
+import { getActivePromotions } from "@/lib/promotion-live";
 
-export default function HomePage() {
+export default async function HomePage() {
   const featured = getApprovedCafes().filter((cafe) => cafe.featured).slice(0, 3);
+  const sponsored = await getActivePromotions("home_hero");
   return (
     <PublicShell>
       <section className="hero">
@@ -27,6 +30,7 @@ export default function HomePage() {
         </div>
       </section>
       <div className="container"><HomeSearch /></div>
+      <div className="container"><SponsoredBanner promotions={sponsored} /></div>
 
       <section className="section">
         <div className="container">

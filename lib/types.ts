@@ -19,6 +19,7 @@ export type MenuItem = {
   featured?: boolean;
   ingredients?: string[];
   badges?: string[];
+  orderable?: boolean;
 };
 
 export type MenuCategory = {
@@ -70,6 +71,73 @@ export type Cafe = {
   sponsored?: boolean;
   status: CafeStatus;
   createdAt: string;
+  theme?: CafeTheme;
+  orderSettings?: OrderSettings;
+};
+
+export type CafeThemePreset = "classic" | "warm" | "minimal";
+export type CafeThemeMode = "light" | "dark";
+
+export type CafeTheme = {
+  preset: CafeThemePreset;
+  primaryColor: string;
+  accentColor: string;
+  mode: CafeThemeMode;
+  font: "default" | "rounded";
+  tier: "standard" | "advanced";
+};
+
+export type OrderSettings = {
+  enabled: boolean;
+  minimumPrepMinutes: number;
+  slotIntervalMinutes: number;
+  capacityPerSlot: number;
+  acceptanceTimeoutMinutes: number;
+  opensAt: string;
+  closesAt: string;
+};
+
+export type PickupOrderStatus = "pending" | "accepted" | "ready" | "collected" | "rejected" | "cancelled" | "expired" | "no_show";
+
+export type PickupOrderItem = {
+  menuItemId: string;
+  name: string;
+  unitPrice: number;
+  quantity: number;
+};
+
+export type PickupOrder = {
+  id: string;
+  cafeId: string;
+  cafeName: string;
+  code: string;
+  accessToken: string;
+  status: PickupOrderStatus;
+  requestedFor: string;
+  promisedFor?: string;
+  note: string;
+  totalPrice: number;
+  items: PickupOrderItem[];
+  createdAt: string;
+  expiresAt: string;
+  rejectionReason?: string;
+};
+
+export type PromotionPlacement = "home_hero" | "home_card" | "cafes_card" | "offers_banner";
+
+export type Promotion = {
+  id: string;
+  cafeId: string;
+  cafeName: string;
+  placement: PromotionPlacement;
+  title: string;
+  image: string;
+  targetUrl: string;
+  startsAt: string;
+  endsAt: string;
+  status: "requested" | "scheduled" | "active" | "paused" | "completed" | "rejected";
+  impressions?: number;
+  clicks?: number;
 };
 
 export type AnalyticsSummary = {

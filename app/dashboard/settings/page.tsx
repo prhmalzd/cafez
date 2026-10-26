@@ -1,4 +1,8 @@
-import { Download, Save } from "lucide-react";
+import { CafeSettings } from "@/components/cafe-settings";
 import { DashboardShell } from "@/components/dashboard-shell";
-import { cafes } from "@/lib/data";
-export default function SettingsPage() { const cafe = cafes[0]; return <DashboardShell><div className="dash-top"><div><h1>اطلاعات کافه</h1><span className="muted">تغییرات عمومی پس از تایید اولیه بلافاصله منتشر می‌شوند.</span></div><button className="button button-primary button-small"><Save size={16} /> ذخیره</button></div><div className="dash-grid"><form className="panel"><h2>مشخصات عمومی</h2><div className="field"><label>نام کافه</label><input className="input" defaultValue={cafe.name} /></div><div className="field"><label>توضیح کوتاه</label><textarea className="textarea" rows={3} defaultValue={cafe.shortDescription} /></div><div className="field"><label>نشانی</label><textarea className="textarea" rows={3} defaultValue={cafe.address} /></div><div className="grid-2"><div className="field"><label>تلفن</label><input className="input" defaultValue={cafe.phone} /></div><div className="field"><label>محله</label><input className="input" defaultValue={cafe.neighborhood} /></div></div></form><aside className="panel"><h2>QR کافه</h2><div style={{ aspectRatio: 1, maxWidth: 230, margin: "0 auto", padding: 18, border: "1px solid #ddd", borderRadius: 18, background: "white", display: "grid", placeItems: "center" }}><span style={{ fontSize: "5rem" }}>▦</span></div><a className="button button-dark" href={`/api/cafes/${cafe.slug}/qr`} style={{ width: "100%", marginTop: 15 }}><Download size={17} /> دانلود QR</a><p className="muted" style={{ fontSize: ".75rem", lineHeight: 1.8 }}>برای میز، ورودی، بسته‌بندی و استوری قابل استفاده است.</p></aside></div></DashboardShell>; }
+import { getManagedCafe } from "@/lib/cafe-live";
+
+export default async function SettingsPage() {
+  const cafe = await getManagedCafe();
+  return <DashboardShell><CafeSettings cafe={cafe} /></DashboardShell>;
+}

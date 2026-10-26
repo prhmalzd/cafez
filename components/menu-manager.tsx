@@ -13,12 +13,13 @@ type ItemDraft = {
   badges: string;
   available: boolean;
   featured: boolean;
+  orderable: boolean;
 };
 
 type EditorState = { categoryId: string; itemId?: string } | null;
 
 const emptyDraft: ItemDraft = {
-  name: "", description: "", price: "", ingredients: "", badges: "", available: true, featured: false,
+  name: "", description: "", price: "", ingredients: "", badges: "", available: true, featured: false, orderable: true,
 };
 
 const storageKey = (cafeId: string) => `cafez:menu:${cafeId}`;
@@ -31,6 +32,7 @@ export function MenuManager({ initialCategories, cafeId }: { initialCategories: 
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [notice, setNotice] = useState("");
   const [dirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem(storageKey(cafeId));
@@ -48,10 +50,17 @@ export function MenuManager({ initialCategories, cafeId }: { initialCategories: 
     setNotice("");
   }
 
-  function save() {
-    localStorage.setItem(storageKey(cafeId), JSON.stringify(categories));
-    setDirty(false);
-    setNotice("منو ذخیره شد و در صفحه عمومی کافه هم نمایش داده می‌شود.");
+  async function save() {
+    setSaving(true); setNotice("");
+    try {
+      const response = await fetch(`/api/dashboard/cafes/${cafeId}/menu`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ categories }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error ?? "ذخیره منو انجام نشد.");
+      localStorage.setItem(storageKey(cafeId), JSON.stringify(categories));
+      setDirty(false);
+      setNotice("منو ذخیره شد و در صفحه عمومی کافه هم نمایش داده می‌شود.");
+    } catch (error) { setNotice(error instanceof Error ? error.message : "ذخیره منو انجام نشد."); }
+    finally { setSaving(false); }
   }
 
   function toggle(categoryId: string, itemId: string) {
@@ -72,6 +81,7 @@ export function MenuManager({ initialCategories, cafeId }: { initialCategories: 
       badges: (item.badges ?? []).join("، "),
       available: item.available,
       featured: Boolean(item.featured),
+      orderable: item.orderable !== false,
     });
     setEditor({ categoryId, itemId: item.id });
   }
@@ -88,6 +98,7 @@ export function MenuManager({ initialCategories, cafeId }: { initialCategories: 
       price,
       available: draft.available,
       featured: draft.featured,
+      orderable: draft.orderable,
       ingredients: draft.ingredients.split(/[،,]/).map((value) => value.trim()).filter(Boolean),
       badges: draft.badges.split(/[،,]/).map((value) => value.trim()).filter(Boolean),
     };
@@ -123,7 +134,7 @@ export function MenuManager({ initialCategories, cafeId }: { initialCategories: 
       <div><h1>مدیریت منو</h1><span className="muted">{categories.length.toLocaleString("fa-IR")} دسته و {itemCount.toLocaleString("fa-IR")} آیتم؛ قیمت و موجودی را همین‌جا به‌روز کنید.</span></div>
       <div className="table-actions">
         <button onClick={() => setShowCategoryForm(true)} className="button button-outline button-small"><FolderPlus size={16} /> دسته جدید</button>
-        <button onClick={save} disabled={!dirty} className="button button-primary button-small"><Save size={16} /> ذخیره تغییرات</button>
+        <button onClick={save} disabled={!dirty || saving} className="button button-primary button-small"><Save size={16} /> {saving ? "در حال ذخیره…" : "ذخیره تغییرات"}</button>
       </div>
     </div>
 
@@ -146,7 +157,7 @@ export function MenuManager({ initialCategories, cafeId }: { initialCategories: 
       <div className="form-grid"><div className="field"><label htmlFor="item-name">نام آیتم</label><input id="item-name" autoFocus required className="input" value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} placeholder="مثلاً لاته زعفران" /></div><div className="field"><label htmlFor="item-price">قیمت به تومان</label><input id="item-price" required min="0" step="1000" inputMode="numeric" type="number" className="input" value={draft.price} onChange={(event) => setDraft({ ...draft, price: event.target.value })} placeholder="۱۴۸۰۰۰" /></div></div>
       <div className="field"><label htmlFor="item-description">توضیح کوتاه</label><textarea id="item-description" className="textarea" rows={3} value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} placeholder="مواد اصلی و طعم آیتم را کوتاه توضیح دهید." /></div>
       <div className="form-grid"><div className="field"><label htmlFor="item-ingredients">مواد اولیه</label><input id="item-ingredients" className="input" value={draft.ingredients} onChange={(event) => setDraft({ ...draft, ingredients: event.target.value })} placeholder="اسپرسو، شیر، زعفران" /><small className="muted">با ویرگول جدا کنید.</small></div><div className="field"><label htmlFor="item-badges">برچسب‌ها</label><input id="item-badges" className="input" value={draft.badges} onChange={(event) => setDraft({ ...draft, badges: event.target.value })} placeholder="وگان، بدون شکر" /><small className="muted">با ویرگول جدا کنید.</small></div></div>
-      <div className="form-checks"><label className="checkbox"><input type="checkbox" checked={draft.available} onChange={(event) => setDraft({ ...draft, available: event.target.checked })} /> در منو موجود است</label><label className="checkbox"><input type="checkbox" checked={draft.featured} onChange={(event) => setDraft({ ...draft, featured: event.target.checked })} /> نمایش به‌عنوان آیتم محبوب</label></div>
+      <div className="form-checks"><label className="checkbox"><input type="checkbox" checked={draft.available} onChange={(event) => setDraft({ ...draft, available: event.target.checked })} /> در منو موجود است</label><label className="checkbox"><input type="checkbox" checked={draft.orderable} onChange={(event) => setDraft({ ...draft, orderable: event.target.checked })} /> قابل پیش‌سفارش بیرون‌بر</label><label className="checkbox"><input type="checkbox" checked={draft.featured} onChange={(event) => setDraft({ ...draft, featured: event.target.checked })} /> نمایش به‌عنوان آیتم محبوب</label></div>
       <div className="modal-actions"><button type="button" onClick={() => setEditor(null)} className="button button-outline">انصراف</button><button className="button button-primary">{editor.itemId ? "ذخیره ویرایش" : "افزودن به منو"}</button></div>
     </form></div></div>}
   </>;

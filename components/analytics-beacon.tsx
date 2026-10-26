@@ -10,8 +10,8 @@ function getAnonymousId() {
   return id;
 }
 
-export function sendAnalytics(eventType: EventType, cafeId?: string, offerId?: string) {
-  const payload = JSON.stringify({ eventType, cafeId, offerId, anonymousId: getAnonymousId(), source: new URLSearchParams(location.search).get("src") ?? document.referrer.slice(0, 80) });
+export function sendAnalytics(eventType: EventType, cafeId?: string, offerId?: string, promotionId?: string) {
+  const payload = JSON.stringify({ eventType, cafeId, offerId, promotionId, anonymousId: getAnonymousId(), source: new URLSearchParams(location.search).get("src") ?? document.referrer.slice(0, 80) });
   if (navigator.sendBeacon) navigator.sendBeacon("/api/analytics", new Blob([payload], { type: "application/json" }));
   else void fetch("/api/analytics", { method: "POST", headers: { "content-type": "application/json" }, body: payload, keepalive: true });
 }

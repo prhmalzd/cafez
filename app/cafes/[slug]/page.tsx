@@ -4,21 +4,23 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AnalyticsBeacon, TrackedAnchor } from "@/components/analytics-beacon";
 import { FavoriteButton } from "@/components/favorite-button";
+import { CafeThemeSurface } from "@/components/cafe-theme-surface";
 import { OfferCard } from "@/components/offer-card";
 import { PublicShell } from "@/components/public-shell";
-import { getApprovedCafes, getCafeBySlug, getOffersForCafe } from "@/lib/data";
+import { getLiveCafeBySlug } from "@/lib/cafe-live";
+import { getApprovedCafes, getOffersForCafe } from "@/lib/data";
 import { getOpenLabel, isOpenAt, toPersianDigits } from "@/lib/utils";
 
 export function generateStaticParams() { return getApprovedCafes().map((cafe) => ({ slug: cafe.slug })); }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const cafe = getCafeBySlug((await params).slug);
+  const cafe = await getLiveCafeBySlug((await params).slug);
   if (!cafe) return {};
   return { title: cafe.name, description: cafe.shortDescription, openGraph: { images: [cafe.cover] } };
 }
 
 export default async function CafePage({ params }: { params: Promise<{ slug: string }> }) {
-  const cafe = getCafeBySlug((await params).slug);
+  const cafe = await getLiveCafeBySlug((await params).slug);
   if (!cafe) notFound();
   const cafeOffers = getOffersForCafe(cafe.id);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -27,7 +29,7 @@ export default async function CafePage({ params }: { params: Promise<{ slug: str
     <PublicShell>
       <AnalyticsBeacon eventType="profile_view" cafeId={cafe.id} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
-      <header className="cafe-cover">
+      <CafeThemeSurface cafeId={cafe.id} initialTheme={cafe.theme}><header className="cafe-cover">
         {/* eslint-disable-next-line @next/next/no-img-element */}<img src={cafe.cover} alt={`نمای ${cafe.name}`} />
         <div className="cafe-cover-content"><div className="container"><img className="cafe-logo" src={cafe.logo} alt={`نشان ${cafe.name}`} /><h1>{cafe.name}</h1><div className="cafe-cover-meta"><span><MapPin size={15} style={{ display: "inline" }} /> {cafe.neighborhood}</span><span>{cafe.type}</span><span className={isOpenAt(cafe.hours) ? "open" : "closed"}>{getOpenLabel(cafe)}</span></div></div></div>
       </header>
@@ -42,7 +44,7 @@ export default async function CafePage({ params }: { params: Promise<{ slug: str
           <div className="content-card"><h2><Clock3 size={18} style={{ display: "inline", verticalAlign: "middle" }} /> ساعت کاری</h2><div className="hours-list">{cafe.hours.map((entry) => <div className="hours-row" key={entry.day}><strong>{entry.label}</strong><span>{entry.closed ? "تعطیل" : `${entry.opensAt} – ${entry.closesAt}`}</span></div>)}</div></div>
           <div className="content-card"><h2>نشانی</h2><p>{cafe.address}</p><a href={cafe.mapUrl} target="_blank" rel="noreferrer" className="eyebrow">بازکردن روی نقشه <ExternalLink size={13} style={{ display: "inline" }} /></a></div>
         </aside>
-      </div>
+      </div></CafeThemeSurface>
     </PublicShell>
   );
 }

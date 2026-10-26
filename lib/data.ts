@@ -1,4 +1,4 @@
-import type { AnalyticsSummary, Cafe, Offer } from "@/lib/types";
+import type { AnalyticsSummary, Cafe, Offer, Promotion } from "@/lib/types";
 import { normalizePersian } from "@/lib/utils";
 
 const everyDay = [
@@ -53,6 +53,8 @@ export const cafes: Cafe[] = [
     gallery: [img("photo-1495474472287-4d71bcdd2085"), img("photo-1512568400610-62da28bc8a13"), img("photo-1501339847302-ac426a4a7cbb")],
     address: "خیابان اصلی، کوچه‌ی سرو، پلاک ۷", phone: "۰۲۱-۳۳۴۴۵۵۶۶", instagram: "https://instagram.com", mapUrl: "https://maps.google.com",
     amenities: ["وای‌فای", "فضای باز", "بیرون‌بر", "پریز برق"], hours: everyDay, offerIds: ["offer-1"], featured: true, sponsored: true, status: "approved", createdAt: "2026-09-12T10:00:00Z",
+    theme: { preset: "warm", primaryColor: "#5b3028", accentColor: "#c85c36", mode: "light", font: "rounded", tier: "standard" },
+    orderSettings: { enabled: true, minimumPrepMinutes: 15, slotIntervalMinutes: 15, capacityPerSlot: 5, acceptanceTimeoutMinutes: 5, opensAt: "08:00", closesAt: "22:30" },
     menu: [
       { id: "cat-coffee", name: "قهوه", items: [
         { id: "m1", name: "لاته هفت", description: "اسپرسو دبل، شیر و کرم پسته", price: 148000, available: true, featured: true, ingredients: ["اسپرسو", "شیر", "پسته"], badges: ["پیشنهاد باریستا"] },
@@ -128,6 +130,16 @@ export const cafes: Cafe[] = [
 ];
 
 export const analytics: AnalyticsSummary = { profileViews: 1842, menuViews: 1296, directionClicks: 286, offerClaims: 174, redemptions: 121 };
+
+export const promotions: Promotion[] = [
+  {
+    id: "promo-1", cafeId: "cafe-1", cafeName: "رُستری هفت", placement: "home_hero",
+    title: "عصرها در رُستری هفت؛ قهوه تازه و یک میز آرام",
+    image: "/images/cafe-hero.png", targetUrl: "/cafes/roastery-no-7?src=promotion",
+    startsAt: "2026-01-01T00:00:00+03:30", endsAt: "2028-12-31T23:59:00+03:30", status: "active",
+    impressions: 4210, clicks: 286,
+  },
+];
 
 export function getApprovedCafes() { return cafes.filter((cafe) => cafe.status === "approved"); }
 export function getCafeBySlug(slug: string) { return getApprovedCafes().find((cafe) => cafe.slug === slug); }
